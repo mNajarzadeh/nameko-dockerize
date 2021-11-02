@@ -1,0 +1,192 @@
+version: "3.8"
+services:
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.7-management
+    ports:
+        - "15673:15672" # Exposing RabbitMQ web management on different port for convenience
+    restart: always
+####################### category start #########################
+  category-db:
+    container_name: category-db
+    image: mysql:5.7
+    ports:
+      - "8012:3306"
+    environment:
+        MYSQL_ROOT_PASSWORD: "root"
+        MYSQL_USER: "admin"
+        MYSQL_PASSWORD: "my-secret-pw"
+        MYSQL_DATABASE: "categories"
+    volumes:
+        - category_db:/var/lib/mysql
+    restart: always
+
+  category-phpmyadmin:
+    depends_on:
+      - category-db
+    image: phpmyadmin/phpmyadmin
+    container_name: category-phpmyadmin
+    restart: always
+    ports:
+      - '8011:80'
+    environment:
+      PMA_HOST: category-db
+
+  category-service:
+    container_name: category-service
+    build:
+      context:    .
+      dockerfile: ./docker/Dockerfile.Category
+    depends_on:
+      - rabbitmq
+      - category-db
+    ports:
+        - "8010:8010"
+    links:
+        - "rabbitmq"
+        - "category-db"
+    restart: always
+    environment:
+        MYSQL_ROOT_PASSWORD: "root"
+        MYSQL_USER: "admin"
+        MYSQL_HOST: "category-db"
+        MYSQL_PORT: "3306"
+        MYSQL_PASSWORD: "my-secret-pw"
+        MYSQL_DATABASE: "categories"
+        RABBIT_PASSWORD: "guest"
+        RABBIT_USER: "guest"
+        RABBIT_HOST: "rabbitmq"
+        RABBIT_PORT: "5672"
+        RABBIT_MANAGEMENT_PORT: "15672"
+####################### category end #########################
+####################### gallery start #########################
+  gallery-db:
+    container_name: gallery-db
+    image: mysql:5.7
+    ports:
+      - "8052:3306"
+    environment:
+        MYSQL_ROOT_PASSWORD: "root"
+        MYSQL_USER: "admin"
+        MYSQL_PASSWORD: "my-secret-pw"
+        MYSQL_DATABASE: "galleries"
+    volumes:
+        - gallery_db:/var/lib/mysql
+    restart: always
+
+  gallery-phpmyadmin:
+    depends_on:
+      - gallery-db
+    image: phpmyadmin/phpmyadmin
+    container_name: gallery-phpmyadmin
+    restart: always
+    ports:
+      - '8051:80'
+    environment:
+      PMA_HOST: gallery-db
+
+  gallery-service:
+    container_name: gallery-service
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.Gallery
+    depends_on:
+      - rabbitmq
+      - gallery-db
+    ports:
+        - "8050:8050"
+    links:
+        - "rabbitmq"
+        - "gallery-db"
+    volumes:
+      - gallery_statics:/var/flask/static
+    restart: always
+    environment:
+        MYSQL_ROOT_PASSWORD: "root"
+        MYSQL_USER: "admin"
+        MYSQL_HOST: "gallery-db"
+        MYSQL_PORT: "3306"
+        MYSQL_PASSWORD: "my-secret-pw"
+        MYSQL_DATABASE: "galleries"
+        RABBIT_PASSWORD: "guest"
+        RABBIT_USER: "guest"
+        RABBIT_HOST: "rabbitmq"
+        RABBIT_PORT: "5672"
+        RABBIT_MANAGEMENT_PORT: "15672"
+####################### gallery end #########################
+####################### task start #########################
+  task-db:
+    container_name: task-db
+    image: mysql:5.7
+    ports:
+      - "8162:3306"
+    environment:
+        MYSQL_ROOT_PASSWORD: "root"
+        MYSQL_USER: "admin"
+        MYSQL_PASSWORD: "my-secret-pw"
+        MYSQL_DATABASE: "tasks"
+    volumes:
+        - task_db:/var/lib/mysql
+    restart: always
+
+  task-phpmyadmin:
+    depends_on:
+      - task-db
+    image: phpmyadmin/phpmyadmin
+    container_name: task-phpmyadmin
+    restart: always
+    ports:
+      - '8161:80'
+    environment:
+      PMA_HOST: task-db
+
+  task-service:
+    container_name: task-service
+    build:
+      context:    .
+      dockerfile: ./docker/Dockerfile.Task
+    depends_on:
+      - rabbitmq
+      - task-db
+    ports:
+        - "8160:8160"
+    links:
+        - "rabbitmq"
+        - "task-db"
+    restart: always
+    environment:
+        MYSQL_ROOT_PASSWORD: "root"
+        MYSQL_USER: "admin"
+        MYSQL_HOST: "task-db"
+        MYSQL_PORT: "3306"
+        MYSQL_PASSWORD: "my-secret-pw"
+        MYSQL_DATABASE: "tasks"
+        RABBIT_PASSWORD: "guest"
+        RABBIT_USER: "guest"
+        RABBIT_HOST: "rabbitmq"
+        RABBIT_PORT: "5672"
+        RABBIT_MANAGEMENT_PORT: "15672"
+####################### task end #########################
+  gateway-service:
+    container_name: gateway-service
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.Gateway
+    depends_on:
+      - rabbitmq
+    ports:
+        - "8888:8888"
+    links:
+        - "rabbitmq"
+    restart: always
+    environment:
+        RABBIT_PASSWORD: "guest"
+        RABBIT_USER: "guest"
+        RABBIT_HOST: "rabbitmq"
+        RABBIT_PORT: "5672"
+        RABBIT_MANAGEMENT_PORT: "15672"
+volumes:
+    category_db:
+    gallery_db:
+    gallery_statics:
+    task_db:

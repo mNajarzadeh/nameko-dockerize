@@ -1,0 +1,10 @@
+FROM python:3.7
+WORKDIR /var/flask/
+ADD ./gallery/requirements.txt /var/flask/requirements.txt
+RUN pip install -r requirements.txt
+RUN apt-get update && apt-get install -y netcat
+ADD ./gallery /var/flask/
+ADD ./lib/ /var/flask/
+RUN chmod +x /var/flask/run.sh
+EXPOSE 8050
+CMD /var/flask/run.sh;

@@ -1,0 +1,10 @@
+FROM python:3.7
+WORKDIR /var/nameko/
+ADD ./gateway/requirements.txt /var/nameko/requirements.txt
+RUN pip install -r requirements.txt
+RUN apt-get update && apt-get install -y netcat
+ADD ./gateway /var/nameko/
+ADD ./lib/ /var/nameko/
+RUN chmod +x /var/nameko/run.sh
+EXPOSE 8888
+CMD /var/nameko/run.sh;
