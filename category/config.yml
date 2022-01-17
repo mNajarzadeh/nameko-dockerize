@@ -1,0 +1,3 @@
+DB_URIS:
+    "category_service:Base": mysql+pymysql://${MYSQL_USER:admin}:${MYSQL_PASSWORD:my-secret-pw}@${MYSQL_HOST:category-db}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:categories}
+AMQP_URI: amqp://${RABBIT_USER:guest}:${RABBIT_PASSWORD:guest}@${RABBIT_HOST:rabbitmq}:${RABBIT_PORT:5672}/

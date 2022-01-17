@@ -1,0 +1,5 @@
+nameko==2.13.0
+marshmallow==3.9.1
+nameko_sqlalchemy==1.5.0
+alembic==1.4.3
+pymysql==0.10.1
