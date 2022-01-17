@@ -1,5 +1,5 @@
 version: "3.8"
-services:
+services: #change user and password !!!!!!
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq:3.7-management
